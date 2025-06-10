@@ -1,0 +1,106 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Product {
+  id          String    @id @default(cuid())
+  name        String
+  description String?
+  price       Float
+  imageUrl    String?
+  category    Category? @relation(fields: [categoryId], references: [id])
+  categoryId  String?
+  extras      Extra[]
+  orderItems OrderItem[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Extra {
+  id        String      @id @default(cuid())
+  name      String
+  price     Float
+  isFree    Boolean     @default(false)
+  products  Product[] 
+  orderItems OrderItem[]
+  utcCreatedOn DateTime  @default(now()) 
+}
+
+model Order {
+  id              String      @id @default(cuid())
+  customerName    String
+  customerPhone   String
+  customerAddress String?
+  status          OrderStatus @default(PENDENTE)
+  paymentStatus   PaymentStatus @default(PENDING)
+  paymentId       String?     // ID do pagamento no Mercado Pago
+  utcCreatedOn    DateTime    @default(now())
+  items           OrderItem[]
+  total           Float
+  deliveryType    DeliveryType
+}
+
+model OrderItem {
+  id        String      @id @default(cuid())
+  order     Order    @relation(fields: [orderId], references: [id])
+  orderId   String
+  product   Product  @relation(fields: [productId], references: [id])
+  productId String
+  quantity  Int
+  extras    Extra[]  
+}
+
+model Settings {
+  id              String      @id @default(cuid())
+  deliveryEnabled Boolean @default(false)
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String
+  email         String    @unique
+  password      String
+  role          Role      @default(USER)
+  utcCreatedOn  DateTime  @default(now())
+}
+
+model Category {
+  id          String    @id @default(cuid())
+  name        String
+  slug        String    @unique
+  description String?
+  imageUrl    String?   // URL da imagem da categoria
+  products    Product[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+enum DeliveryType {
+  RETIRAR
+  ENTREGAR
+}
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+}
+enum OrderStatus {
+  PENDENTE       // Pedido criado, aguardando confirmação ou pagamento
+  CONFIRMADO     // Pedido confirmado pelo admin
+  PREPARANDO     // Pedido está sendo preparado
+  PRONTO         // Pedido finalizado e pronto para retirada ou entrega
+  EM_ENTREGA     // Pedido saiu para entrega
+  ENTREGUE       // Pedido foi entregue ao cliente
+  RETIRADO       // Pedido foi retirado pelo cliente
+  CANCELADO      // Pedido cancelado
+}
+
+enum Role {
+  USER
+  ADMIN
+}
