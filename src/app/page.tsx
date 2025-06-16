@@ -1,8 +1,8 @@
 "use client";
-
+(globalThis as any).litDevMode = false;
 import React, { useEffect, useState } from "react";
-import ProductCard from "@/app/components/ProductCard";
-import CategoryGrid from "@/app/components/CategoryGrid";
+import ProductCard from "@/components/ProductCard";
+import CategoryGrid from "@/components/CategoryGrid";
 import dynamic from "next/dynamic";
 
 const SlInput = dynamic(
@@ -23,7 +23,7 @@ export default function ProductsPage() {
     const data = await res.json();
     console.log(data)
     setProducts(data.products);          // Lista de produtos
-    setTotalPages(data.totalPages === 0 ? 1 : data.totalPages);  // Total de páginas (vem do backend)
+    setTotalPages(data.total === 0 ? 1 : data.total);  // Total de páginas (vem do backend)
   };
 
   useEffect(() => {
@@ -52,10 +52,10 @@ export default function ProductsPage() {
           <option value="price">Preço (menor primeiro)</option>
         </select>
       </div>
-      <CategoryGrid />
+      <CategoryGrid/>
 
       <main className="max-w-3xl mx-auto p-4 grid justify-center gap-4 sm:grid-cols-3 text-center">
-        {products.map((p: any) => (
+        {products && products.map((p: any) => (
           <ProductCard key={p.id} product={p} />
         ))}
       </main>

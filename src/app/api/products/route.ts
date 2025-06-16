@@ -1,8 +1,8 @@
 // app/api/products/route.ts
-import prisma from "@/app/lib/prisma";
+import prisma from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/lib/auth";
+import { authOptions } from "@/lib/auth";
 import { Prisma } from "@prisma/client";
 
 export async function GET(req: Request) {
@@ -64,7 +64,7 @@ export async function POST(req: Request) {
 
     const body = await req.json();
     const { name, price, categoryId, imageUrl, description, extraIds } = body;
-
+    console.log(body)
     if (!name || !price || !categoryId) {
       return NextResponse.json(
         { error: 'Name, price and category are required' },

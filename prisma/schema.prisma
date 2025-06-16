@@ -56,7 +56,7 @@ model OrderItem {
 }
 
 model Settings {
-  id              String      @id @default(cuid())
+  id              Int      @id @default(1)
   deliveryEnabled Boolean @default(false)
 }
 

@@ -1,8 +1,8 @@
 // app/api/orders/route.ts
 import { NextResponse } from "next/server";
-import prisma from "@/app/lib/prisma";
+import prisma from "@/lib/prisma";
 import { CreateOrderInput, DeliveryType } from "@/types/order";
-import { sendEmail } from "@/app/lib/resend";
+import { sendEmail } from "@/lib/resend";
 import { EmailTemplate } from "@/emails/emailOrder";
 
 type DataBodyOrder = {
@@ -29,7 +29,7 @@ export async function POST(req: Request) {
           quantity: item.quantity,
           extras: item.extras
             ? {
-                connect: item.extras.map((extra) => ({ id: extra.id })),
+                connect: item.extras.map((extra) => ({ id: String(extra.id) })),
               }
             : undefined,
         })),

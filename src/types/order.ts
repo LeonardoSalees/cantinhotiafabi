@@ -2,14 +2,14 @@ import { Extra } from "./extra";
 import { Product } from "./product";
 
 export type OrderItemInput = {
-  id?: string | number;
+  id?: string;
   productId: number;
   quantity: number;
   extraIds?: number[];
 };
 
 export type CreateOrderInput = {
-  id?: string | number;
+  id?: string;
   customerName: string;
   customerPhone: string;
   customerAddress?: string | null;
@@ -24,7 +24,7 @@ export type CreateOrderInput = {
 };
 
 export type CartItem = {
-  id?: string | number;
+  id?: string;
   product: Product;
   quantity: number;
   extras: Extra[];

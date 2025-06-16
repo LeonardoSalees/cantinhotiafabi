@@ -1,37 +1,79 @@
-import { NextResponse } from "next/server";
-import prisma from "@/app/lib/prisma";
+// @ts-ignore
+import { NextRequest, NextResponse } from "next/server";
+import prisma from "@/lib/prisma";
 
-type Params = { params: { id: string } };
+type RouteContext = {
+  params: Promise<{ id: string }>;
+};
 
-export async function GET(req: Request, { params }: Params) {
-  const id = Number(params.id);
-  const extra = await prisma.extra.findUnique({ where: { id } });
+export async function GET(
+  request: NextRequest,
+  context: RouteContext
+) {
+  const { id } = await context.params;
+  try {
+    const extra = await prisma.extra.findUnique({
+      where: {
+        id,
+      },
+    });
 
-  if (!extra) {
-    return NextResponse.json({ error: "Adicional não encontrado" }, { status: 404 });
+    if (!extra) {
+      return NextResponse.json(
+        { error: "Extra não encontrado" },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json(extra);
+  } catch (error) {
+    return NextResponse.json(
+      { error: "Erro ao buscar extra" },
+      { status: 500 }
+    );
   }
-
-  return NextResponse.json(extra);
 }
 
-export async function PUT(req: Request, { params }: Params) {
-  const id = Number(params.id);
-  const data = await req.json();
+export async function PUT(
+  request: NextRequest,
+  context: RouteContext
+) {
+  const { id } = await context.params;
+  try {
+    const body = await request.json();
+    const extra = await prisma.extra.update({
+      where: {
+        id,
+      },
+      data: body,
+    });
 
-  const updated = await prisma.extra.update({
-    where: { id },
-    data,
-  });
-
-  return NextResponse.json(updated);
+    return NextResponse.json(extra);
+  } catch (error) {
+    return NextResponse.json(
+      { error: "Erro ao atualizar extra" },
+      { status: 500 }
+    );
+  }
 }
 
-export async function DELETE(req: Request, { params }: Params) {
-  const id = Number(params.id);
+export async function DELETE(
+  request: NextRequest,
+  context: RouteContext
+) {
+  const { id } = await context.params;
+  try {
+    await prisma.extra.delete({
+      where: {
+        id,
+      },
+    });
 
-  await prisma.extra.delete({
-    where: { id },
-  });
-
-  return NextResponse.json({ message: "Adicional deletado com sucesso" });
+    return NextResponse.json({ message: "Extra deletado com sucesso" });
+  } catch (error) {
+    return NextResponse.json(
+      { error: "Erro ao deletar extra" },
+      { status: 500 }
+    );
+  }
 }

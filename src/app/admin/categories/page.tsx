@@ -1,277 +1,229 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import dynamic from 'next/dynamic';
-import ImageUpload from '@/app/components/ImageUpload';
-import Image from 'next/image';
+import { useState, useEffect } from 'react';
+import { Category } from '@prisma/client';
+import { useRouter } from 'next/navigation';
+import { toast } from 'react-hot-toast';
 
-const SlButton = dynamic(
-  () => import('@shoelace-style/shoelace/dist/react').then((mod) => mod.SlButton),
-  { ssr: false }
-);
-
-const SlDialog = dynamic(
-  () => import('@shoelace-style/shoelace/dist/react').then((mod) => mod.SlDialog),
-  { ssr: false }
-);
-
-const SlInput = dynamic(
-  () => import('@shoelace-style/shoelace/dist/react').then((mod) => mod.SlInput),
-  { ssr: false }
-);
-
-type Category = {
-  id: string;
+interface CategoryFormData {
   name: string;
-  slug: string;
-  description?: string;
-  imageUrl?: string;
-};
+  description: string;
+  imageUrl: string;
+}
 
-export default function AdminCategories() {
+export default function CategoriesPage() {
+  const router = useRouter();
   const [categories, setCategories] = useState<Category[]>([]);
-  const [open, setOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
-  const [imageUrl, setImageUrl] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [search, setSearch] = useState('');
-  const [loading, setLoading] = useState(true);
-
-  const fetchCategories = async () => {
-    try {
-      setLoading(true);
-      const res = await fetch(`/api/categories?page=${currentPage}&search=${search}`);
-      const data = await res.json();
-      setCategories(data.categories);
-      setTotalPages(data.pages);
-    } catch (error) {
-      console.error('Erro ao buscar categorias:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const [formData, setFormData] = useState<CategoryFormData>({
+    name: '',
+    description: '',
+    imageUrl: '',
+  });
 
   useEffect(() => {
     fetchCategories();
-  }, [currentPage, search]);
+  }, []);
 
-  const openModal = (category?: Category) => {
-    if (category) {
-      setEditingCategory(category);
-      setName(category.name);
-      setDescription(category.description || '');
-      setImageUrl(category.imageUrl || '');
-    } else {
-      setEditingCategory(null);
-      setName('');
-      setDescription('');
-      setImageUrl('');
+  const fetchCategories = async () => {
+    try {
+      const response = await fetch('/api/categories');
+      const data = await response.json();
+      setCategories(data.categories);
+    } catch (error) {
+      console.error('Erro ao buscar categorias:', error);
+      toast.error('Erro ao carregar categorias');
     }
-    setOpen(true);
   };
 
-  const handleSave = async () => {
-    if (!name) return alert('Preencha o nome da categoria');
-
-    const body = { 
-      name, 
-      description,
-      imageUrl
-    };
-
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     try {
-      if (editingCategory) {
-        const response = await fetch(`/api/categories/${editingCategory.slug}`, {
+      if (isEditing && editingCategory) {
+        const response = await fetch(`/api/categories/${editingCategory.id}`, {
           method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(body),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(formData),
         });
 
         if (!response.ok) {
-          const data = await response.json();
-          throw new Error(data.error || 'Erro ao atualizar categoria');
+          throw new Error('Erro ao atualizar categoria');
         }
+
+        toast.success('Categoria atualizada com sucesso!');
       } else {
         const response = await fetch('/api/categories', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(body),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(formData),
         });
 
         if (!response.ok) {
-          const data = await response.json();
-          throw new Error(data.error || 'Erro ao criar categoria');
+          throw new Error('Erro ao criar categoria');
         }
+
+        toast.success('Categoria criada com sucesso!');
       }
 
-      setOpen(false);
+      setIsModalOpen(false);
+      setFormData({ name: '', description: '', imageUrl: '' });
+      setIsEditing(false);
+      setEditingCategory(null);
       fetchCategories();
     } catch (error) {
-      alert(error instanceof Error ? error.message : 'Erro ao salvar categoria');
+      console.error('Erro ao salvar categoria:', error);
+      toast.error('Erro ao salvar categoria');
     }
   };
 
+  const handleEdit = (category: Category) => {
+    setEditingCategory(category);
+    setFormData({
+      name: category.name,
+      description: category.description || '',
+      imageUrl: category.imageUrl || '',
+    });
+    setIsEditing(true);
+    setIsModalOpen(true);
+  };
+
   const handleDelete = async (category: Category) => {
-    if (!confirm('Tem certeza? Esta ação não pode ser desfeita.')) return;
+    if (!confirm('Tem certeza que deseja excluir esta categoria?')) {
+      return;
+    }
     
     try {
-      const response = await fetch(`/api/categories/${category.slug}`, { 
-        method: 'DELETE' 
+      const response = await fetch(`/api/categories/${category.id}`, {
+        method: 'DELETE',
       });
       
-      const data = await response.json();
-      
       if (!response.ok) {
-        throw new Error(data.error || 'Erro ao excluir categoria');
+        throw new Error('Erro ao excluir categoria');
       }
       
+      toast.success('Categoria excluída com sucesso!');
       fetchCategories();
     } catch (error) {
-      alert(error instanceof Error ? error.message : 'Erro ao excluir categoria');
+      console.error('Erro ao excluir categoria:', error);
+      toast.error('Erro ao excluir categoria');
     }
   };
 
   return (
-    <main className="min-h-screen bg-gray-100 flex flex-col items-center py-10 px-4" style={{color: 'var(--text-expresso)'}}>
-      <div className="w-full max-w-3xl">
+    <div className="container mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold">Gerenciar Categorias</h1>
-          <SlButton variant="primary" onClick={() => openModal()}>
+        <h1 className="text-2xl font-bold">Categorias</h1>
+        <button
+          onClick={() => {
+            setIsEditing(false);
+            setEditingCategory(null);
+            setFormData({ name: '', description: '', imageUrl: '' });
+            setIsModalOpen(true);
+          }}
+          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+        >
             Nova Categoria
-          </SlButton>
+        </button>
         </div>
 
-        <div className="mb-4">
-          <SlInput
-            value={search}
-            onSlInput={(e: any) => setSearch(e.target.value)}
-            placeholder="Buscar categorias..."
-            className="w-full"
-          />
-        </div>
-
-        <div className="bg-white shadow-md rounded-lg overflow-hidden">
-          <table className="min-w-full text-sm">
-            <thead className="bg-gray-50 text-left">
-              <tr>
-                <th className="px-4 py-3 font-medium">Imagem</th>
-                <th className="px-4 py-3 font-medium">Nome</th>
-                <th className="px-4 py-3 font-medium">Descrição</th>
-                <th className="px-4 py-3 text-right font-medium">Ações</th>
-              </tr>
-            </thead>
-            <tbody>
-              {loading ? (
-                <tr>
-                  <td colSpan={4} className="px-4 py-6 text-center text-gray-500">
-                    Carregando...
-                  </td>
-                </tr>
-              ) : categories.length === 0 ? (
-                <tr>
-                  <td colSpan={4} className="px-4 py-6 text-center text-gray-500">
-                    Nenhuma categoria encontrada
-                  </td>
-                </tr>
-              ) : (
-                categories.map((c) => (
-                  <tr key={c.id} className="border-t">
-                    <td className="px-4 py-3">
-                      {c.imageUrl && (
-                        <div className="relative w-12 h-12">
-                          <Image
-                            src={c.imageUrl}
-                            alt={c.name}
-                            fill
-                            className="object-cover rounded-lg"
-                          />
-                        </div>
-                      )}
-                    </td>
-                    <td className="px-4 py-3">{c.name}</td>
-                    <td className="px-4 py-3">{c.description || '-'}</td>
-                    <td className="px-4 py-3 text-right space-x-2">
-                      <SlButton size="small" onClick={() => openModal(c)}>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {categories.map((category) => (
+          <div
+            key={category.id}
+            className="bg-white rounded-lg shadow-md p-6"
+          >
+            <h3 className="text-xl font-semibold mb-2">{category.name}</h3>
+            <p className="text-gray-600 mb-4">{category.description}</p>
+            <div className="flex justify-end space-x-2">
+              <button
+                onClick={() => handleEdit(category)}
+                className="text-blue-500 hover:text-blue-700"
+              >
                         Editar
-                      </SlButton>
-                      <SlButton
-                        size="small"
-                        variant="danger"
-                        onClick={() => handleDelete(c)}
+              </button>
+              <button
+                onClick={() => handleDelete(category)}
+                className="text-red-500 hover:text-red-700"
                       >
                         Excluir
-                      </SlButton>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+              </button>
         </div>
-
-        {totalPages > 1 && (
-          <div className="flex justify-center gap-2 mt-4">
-            <SlButton
-              size="small"
-              disabled={currentPage === 1}
-              onClick={() => setCurrentPage(p => p - 1)}
-            >
-              Anterior
-            </SlButton>
-            <span className="flex items-center px-4">
-              Página {currentPage} de {totalPages}
-            </span>
-            <SlButton
-              size="small"
-              disabled={currentPage === totalPages}
-              onClick={() => setCurrentPage(p => p + 1)}
-            >
-              Próxima
-            </SlButton>
           </div>
-        )}
+        ))}
       </div>
 
-      <SlDialog
-        label={editingCategory ? "Editar Categoria" : "Nova Categoria"}
-        open={open}
-        onSlAfterHide={() => setOpen(false)}
-      >
-        <div className="p-4 space-y-4">
-          <div>
-            <label className="block text-sm font-medium mb-1">Nome</label>
-            <SlInput
-              value={name}
-              onSlInput={(e: any) => setName(e.target.value)}
-              placeholder="Nome da categoria"
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md">
+            <h2 className="text-xl font-bold mb-4">
+              {isEditing ? 'Editar Categoria' : 'Nova Categoria'}
+            </h2>
+            <form onSubmit={handleSubmit}>
+              <div className="mb-4">
+                <label className="block text-gray-700 text-sm font-bold mb-2">
+                  Nome
+                </label>
+                <input
+                  type="text"
+                  value={formData.name}
+                  onChange={(e) =>
+                    setFormData({ ...formData, name: e.target.value })
+                  }
+                  className="w-full px-3 py-2 border rounded"
+                  required
             />
           </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">Descrição</label>
-            <SlInput
-              value={description}
-              onSlInput={(e: any) => setDescription(e.target.value)}
-              placeholder="Descrição da categoria (opcional)"
+              <div className="mb-4">
+                <label className="block text-gray-700 text-sm font-bold mb-2">
+                  Descrição
+                </label>
+                <textarea
+                  value={formData.description}
+                  onChange={(e) =>
+                    setFormData({ ...formData, description: e.target.value })
+                  }
+                  className="w-full px-3 py-2 border rounded"
+                  rows={3}
             />
           </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">Imagem</label>
-            <ImageUpload
-              value={imageUrl}
-              onChange={setImageUrl}
+              <div className="mb-4">
+                <label className="block text-gray-700 text-sm font-bold mb-2">
+                  URL da Imagem
+                </label>
+                <input
+                  type="url"
+                  value={formData.imageUrl}
+                  onChange={(e) =>
+                    setFormData({ ...formData, imageUrl: e.target.value })
+                  }
+                  className="w-full px-3 py-2 border rounded"
             />
           </div>
-          <div className="flex justify-end gap-2 mt-4">
-            <SlButton onClick={() => setOpen(false)}>Cancelar</SlButton>
-            <SlButton variant="primary" onClick={handleSave}>
-              Salvar
-            </SlButton>
+              <div className="flex justify-end space-x-2">
+                <button
+                  type="button"
+                  onClick={() => setIsModalOpen(false)}
+                  className="px-4 py-2 text-gray-600 hover:text-gray-800"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                >
+                  {isEditing ? 'Atualizar' : 'Criar'}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
-      </SlDialog>
-    </main>
+      )}
+    </div>
   );
 } 

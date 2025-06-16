@@ -12,7 +12,7 @@ type CartItem = {
 type CartContextType = {
   items: CartItem[];
   addItem: (product: Product, quantity: number, extras: Extra[]) => void;
-  removeItem: (productId: number) => void;
+  removeItem: (productId: string) => void;
   clearCart: () => void;
   cartItems: CartItem[];
   getTotal: () => number;
@@ -50,7 +50,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  function removeItem(productId: number) {
+  function removeItem(productId: string) {
     setItems(items.filter(item => item.product.id !== productId));
   }
 

@@ -2,7 +2,7 @@
 
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import dynamic from 'next/dynamic';
 
 const SlButton = dynamic(() =>
@@ -17,7 +17,25 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
+  const emailRef = useRef<any>(null);
+  const passwordRef = useRef<any>(null);
+
+  useEffect(() => {
+    if (emailRef.current) {
+      const nativeInput = emailRef.current.shadowRoot.querySelector('input');
+      if (nativeInput) {
+        setEmail(nativeInput.value);
+      }
+    }
+    if (passwordRef.current) {
+      const nativeInput = passwordRef.current.shadowRoot.querySelector('input');
+      if (nativeInput) {
+        setEmail(nativeInput.value);
+      }
+    }
+  }, []);
   const handleSubmit = async (e: React.FormEvent) => {
+    console.log(email,password)
     e.preventDefault();
     try {
       const result = await signIn("credentials", {
@@ -51,25 +69,27 @@ export default function LoginPage() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <SlInput
+            ref={emailRef}
               type="email"
               label="Email"
               value={email}
               onSlInput={(e: any) => setEmail(e.target.value)}
               required
               autocomplete="email"
-              id="email-input"
+              id="login-email-input"
             />
           </div>
 
           <div>
             <SlInput
+            ref={passwordRef}
               type="password"
               label="Senha"
               value={password}
               onSlInput={(e: any) => setPassword(e.target.value)}
               required
               autocomplete="current-password"
-              id="password-input"
+              id="login-password-input"
             />
           </div>
 

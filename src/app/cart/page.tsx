@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from 'next/dynamic';
-import { formatCurrency } from '@/app/lib/formatCurrency';
+import { formatCurrency } from '@/lib/formatCurrency';
 
 const SlButton = dynamic(
   () =>
@@ -14,7 +14,7 @@ const SlCard = dynamic(
   { ssr: false }
 );
 
-import { useCart } from "@/app/context/CartContext";
+import { useCart } from "@/context/CartContext";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { FaRegSadCry } from "react-icons/fa";
@@ -31,16 +31,17 @@ export default function CartPage() {
         <p className="text-gray-500">Seu carrinho está vazio.</p>
       ) : (
         <div className="space-y-4">
-          {cartItems.map((item, index) => (
+          {cartItems && cartItems.map((item, index) => (
             <SlCard key={index} className="w-full">
               <div className="flex flex-col items-center gap-4 sm:flex-row">
 
                 <Image
-                  src={item.product.imageUrl}
+                  src={String(item.product.imageUrl)}
                   alt={item.product.name}
                   width={80}
                   height={80}
                   className="rounded"
+                  priority
                 />
 
                 <div className="flex-1" style={{ color: 'var(--text-expresso' }} >
@@ -59,7 +60,7 @@ export default function CartPage() {
                       (item.extras.reduce((sum, extra) => extra.isFree ? sum : sum + extra.price, 0)))}
                   </p>
                 </div>
-                <SlButton variant="danger" onClick={() => removeItem(item.product.id)}>
+                <SlButton variant="danger" onClick={() => removeItem(String(item.product.id))}>
                   <div className="flex items-center gap-1">
                     <FaRegSadCry />
                     Remover

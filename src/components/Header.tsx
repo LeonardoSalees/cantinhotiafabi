@@ -39,7 +39,7 @@ export default function Header() {
       <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
         {/* Logo / Nome da loja */}
         <Link href="/" className="text-xl font-bold text-green-600">
-          <Image src="/logo.png" alt="Logo" width={100} height={100} />
+          <Image src="/logo.png" alt="Logo" width={100} height={100} priority/>
         </Link>
 
         {/* Navegação principal */}

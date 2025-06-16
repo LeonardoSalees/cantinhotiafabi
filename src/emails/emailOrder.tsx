@@ -1,6 +1,6 @@
 import { Order } from '@prisma/client';
 import * as React from 'react';
-import { formatCurrency } from '@/app/lib/formatCurrency';
+import { formatCurrency } from '@/lib/formatCurrency';
 
 interface EmailOrderTemplateProps {
   order: Order & {

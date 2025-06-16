@@ -95,6 +95,7 @@ export default function PixPayment({ orderId, amount, description, onSuccess }: 
             width={200}
             height={200}
             className="rounded-lg"
+            priority
           />
         </div>
       )}

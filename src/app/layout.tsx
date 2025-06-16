@@ -1,18 +1,17 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Poppins } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
 import '@shoelace-style/shoelace/dist/themes/light.css';
-import Header from "@/app/components/Header";
+import Header from "@/components/Header";
+import Script from "next/script";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+const poppins = Poppins({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-poppins',
+  display: 'swap',
+  preload: true,
 });
 
 export const metadata: Metadata = {
@@ -26,13 +25,19 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="pt-BR">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+    <html lang="pt-BR" className={`${poppins.variable}`}>
+      <head>
+        <Script id="shoelace-production-mode" strategy="beforeInteractive">
+          {`
+            window.ENV = { NODE_ENV: 'production' };
+            window.__LIT_DEV_MODE__ = false;
+          `}
+        </Script>
+      </head>
+      <body className="antialiased font-sans">
         <Providers>
           <Header />
-          {children}
+          {children} 
         </Providers>
       </body>
     </html>

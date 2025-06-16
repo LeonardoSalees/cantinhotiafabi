@@ -2,9 +2,9 @@
 import { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import Select from 'react-select';
-import { formatCurrency } from '@/app/lib/formatCurrency';
+import { formatCurrency } from '@/lib/formatCurrency';
 import { useDropzone } from 'react-dropzone';
-import { useUploadThing } from '@/app/lib/uploadthing';
+import { useUploadThing } from '@/lib/uploadthing';
 
 const SlButton = dynamic(
   () => import('@shoelace-style/shoelace/dist/react').then((mod) => mod.SlButton),
@@ -93,7 +93,7 @@ export default function AdminProducts() {
     const data = await res.json();
     console.log(data)
     setProducts(data.products);
-    setTotalPages(data.pages === 0 ? 1 : data.pages);
+    setTotalPages(data.total === 0 ? 1 : data.total);
   };
 
   const fetchCategories = async () => {

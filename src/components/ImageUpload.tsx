@@ -2,7 +2,7 @@
 
 import { useCallback, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { useUploadThing } from '@/app/lib/uploadthing';
+import { useUploadThing } from '@/lib/uploadthing';
 import Image from 'next/image';
 
 interface ImageUploadProps {
@@ -57,6 +57,7 @@ export default function ImageUpload({ value, onChange }: ImageUploadProps) {
               alt="Imagem da categoria"
               fill
               className="object-contain rounded-lg"
+              priority
             />
           </div>
         ) : (

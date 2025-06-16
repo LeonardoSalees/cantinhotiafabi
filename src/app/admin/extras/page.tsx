@@ -35,7 +35,7 @@ export default function AdminExtras() {
     const res = await fetch(`/api/extras?page=${page}&limit=10&sort=${sort}&search=${search}`);
     const data = await res.json();
     setExtras(data.extras);
-    setTotalPages(data.totalPages === 0 ? 1 : data.totalPages);  // Total de páginas (vem do backend)
+    setTotalPages(data.total === 0 ? 1 : data.total);  // Total de páginas (vem do backend)
   };
   useEffect(() => { loadExtras(); }, [page, sort, search]);
 

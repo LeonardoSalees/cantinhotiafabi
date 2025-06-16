@@ -24,7 +24,7 @@ export default function AdminPedidosPage() {
         fetchOrders();
     }, []);
 
-    async function markAsStatus(orderId: number, status: string) {
+    async function markAsStatus(orderId: string, status: string) {
         const res = await fetch(`/api/orders/${orderId}`, {
             method: 'PUT',
             headers: {
@@ -87,7 +87,7 @@ export default function AdminPedidosPage() {
                                 <select
                                     className="border rounded px-2 py-1 text-sm"
                                     value={order.status}
-                                    onChange={(e) => markAsStatus(Number(order.id), e.target.value)}
+                                    onChange={(e) => markAsStatus(String(order.id), e.target.value)}
                                 >
                                     <option value="PENDENTE">PENDENTE</option>
                                     <option value="CONFIRMADO">CONFIRMADO</option>

@@ -1,12 +1,12 @@
 'use client';
 
-import { useCart } from '@/app/context/CartContext';
+import { useCart } from '@/context/CartContext';
 import { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { Settings } from '@/types/settings';
-import PhoneInput from '../components/PhoneInput';
+import PhoneInput from '../../components/PhoneInput';
 import { CreateOrderInput, DeliveryType, OrderItemInput, OrderStatus } from '@/types/order';
-import PixPayment from '../components/PixPayment';
+import PixPayment from '../../components/PixPayment';
 import { useRouter } from 'next/navigation';
 
 const SlButton = dynamic(() =>
