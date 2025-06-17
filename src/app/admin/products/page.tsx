@@ -5,6 +5,7 @@ import Select from 'react-select';
 import { formatCurrency } from '@/lib/formatCurrency';
 import { useDropzone } from 'react-dropzone';
 import { useUploadThing } from '@/lib/uploadthing';
+import Image from 'next/image';
 
 const SlButton = dynamic(
   () => import('@shoelace-style/shoelace/dist/react').then((mod) => mod.SlButton),
@@ -184,31 +185,33 @@ export default function AdminProducts() {
   return (
     <main className="min-h-screen bg-gray-100 flex flex-col items-center py-10 px-4" style={{color: 'var(--text-expresso)'}}>
       <div className="w-full max-w-3xl">
-        <div className="flex items-center justify-between mb-4">
-          <SlInput
-            className="w-1/2"
-            placeholder="Buscar produto..."
-            value={search}
-            onSlInput={(e: any) => {
-              setSearch(e.target.value);
-              setPage(1);
-            }}
-          />
-          <select
-            className="ml-4 p-2 border rounded"
-            value={sort}
-            onChange={(e) => setSort(e.target.value)}
-          >
-            <option value="name">Nome (A-Z)</option>
-            <option value="price">Preço (menor primeiro)</option>
-          </select>
-        </div>
-
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold">Gerenciar Produtos</h1>
-          <SlButton variant="primary" onClick={() => openModal()}>
-            Novo Produto
-          </SlButton>
+        <div className="bg-white shadow-md rounded-lg p-6 mb-6">
+          <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
+            <h1 className="text-2xl font-bold">Gerenciar Produtos</h1>
+            <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+              <div className="w-full sm:w-64">
+                <SlInput
+                  placeholder="Buscar produto..."
+                  value={search}
+                  onSlInput={(e: any) => {
+                    setSearch(e.target.value);
+                    setPage(1);
+                  }}
+                />
+              </div>
+              <select
+                className="p-2 border rounded bg-white"
+                value={sort}
+                onChange={(e) => setSort(e.target.value)}
+              >
+                <option value="name">Nome (A-Z)</option>
+                <option value="price">Preço (menor primeiro)</option>
+              </select>
+              <SlButton variant="primary" onClick={() => openModal()}>
+                Novo Produto
+              </SlButton>
+            </div>
+          </div>
         </div>
 
         <div className="bg-white shadow-md rounded-lg overflow-hidden">
@@ -326,19 +329,53 @@ export default function AdminProducts() {
             <label className="block text-sm font-medium mb-1">Imagem</label>
             <div
               {...getRootProps()}
-              className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center cursor-pointer hover:border-gray-400"
+              className={`border-2 border-dashed rounded-lg p-4 text-center cursor-pointer transition-colors
+                ${uploading ? 'border-gray-400 bg-gray-50' : 'border-gray-300 hover:border-gray-400'}
+                ${imageUrl ? 'border-green-500' : ''}`}
             >
               <input {...getInputProps()} />
               {imageUrl ? (
                 <div className="relative w-32 h-32 mx-auto">
-                  <img
+                  <Image
                     src={imageUrl}
                     alt="Preview"
-                    className="w-full h-full object-cover rounded"
+                    fill
+                    className="object-cover rounded"
                   />
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setImageUrl('');
+                    }}
+                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                  >
+                    ✕
+                  </button>
                 </div>
               ) : (
-                <p>Arraste uma imagem ou clique para selecionar</p>
+                <div className="space-y-2">
+                  <p className="text-sm text-gray-600">
+                    {uploading ? 'Enviando...' : 'Arraste uma imagem ou clique para selecionar'}
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    PNG, JPG ou GIF até 5MB
+                  </p>
+                  <div className="flex justify-center">
+                    <SlButton
+                      type="button"
+                      size="small"
+                      variant="neutral"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        const input = document.querySelector('input[type="file"]') as HTMLInputElement;
+                        if (input) input.click();
+                      }}
+                    >
+                      Selecionar Imagem
+                    </SlButton>
+                  </div>
+                </div>
               )}
             </div>
           </div>

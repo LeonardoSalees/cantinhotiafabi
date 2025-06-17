@@ -7,15 +7,13 @@ import { Extra } from "@/types/extra";
 import { Product } from "@/types/product";
 import dynamic from 'next/dynamic';
 import { formatCurrency } from '@/lib/formatCurrency';
+import { Plus, Minus, X } from "lucide-react";
 
 const SlButton = dynamic(() =>
   import('@shoelace-style/shoelace/dist/react').then((mod) => mod.SlButton), { ssr: false });
 
 const SlInput = dynamic(() =>
   import('@shoelace-style/shoelace/dist/react').then((mod) => mod.SlInput), { ssr: false });
-
-const SlIcon = dynamic(() =>
-  import('@shoelace-style/shoelace/dist/react').then((mod) => mod.SlIcon), { ssr: false });
 
 type ProductWithExtra = Product & {
   extras?: Extra[];
@@ -37,7 +35,7 @@ export default function ProductCard({ product }: { product: ProductWithExtra }) 
     if (!extra) return;
 
     const isCurrentlySelected = selectedExtras.includes(extraId);
-    const currentFreeExtras = selectedExtras.filter(id => 
+    const currentFreeExtras = selectedExtras.filter(id =>
       product.extras?.find(e => e.id === id)?.isFree
     ).length;
 
@@ -61,14 +59,14 @@ export default function ProductCard({ product }: { product: ProductWithExtra }) 
   const handleAdd = async () => {
     try {
       setIsAdding(true);
-      const selectedExtrasList = product.extras?.filter(extra => 
+      const selectedExtrasList = product.extras?.filter(extra =>
         selectedExtras.includes(extra.id)
       ) || [];
-      
+
       await addItem(product, quantity, selectedExtrasList);
-      
+
       alert(`${product.name} adicionado ao carrinho!`);
-      
+
       setQuantity(1);
       setSelectedExtras([]);
       setShowExtras(false);
@@ -79,16 +77,16 @@ export default function ProductCard({ product }: { product: ProductWithExtra }) 
     }
   };
 
-  const totalPrice = product.price + 
-    (product.extras?.reduce((acc, extra) => 
+  const totalPrice = product.price +
+    (product.extras?.reduce((acc, extra) =>
       selectedExtras.includes(extra.id) && !extra.isFree ? acc + extra.price : acc, 0) || 0);
 
   const hasFreeExtras = product.extras?.some(extra => extra.isFree);
   const hasPaidExtras = product.extras?.some(extra => !extra.isFree);
 
   return (
-    <div 
-      className="group bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 flex flex-col justify-between p-3 sm:p-4 h-full border border-gray-100 relative overflow-hidden"
+    <div
+      className="group flex flex-col gap-3 bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 items-center !p-4 h-full border border-gray-100 relative overflow-hidden"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
@@ -101,102 +99,75 @@ export default function ProductCard({ product }: { product: ProductWithExtra }) 
         </div>
       )}
 
-      <div className="flex flex-col gap-2 sm:gap-3">
-        {/* Imagem do produto */}
-        <div className="relative w-full aspect-[4/3] sm:aspect-[16/9] rounded-lg overflow-hidden">
-          {product.imageUrl ? (
-            <Image
-              src={product.imageUrl}
-              alt={product.name}
-              fill
-              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-              className={`object-cover transition-transform duration-500 ${isHovered ? 'scale-110' : 'scale-100'}`}
-              priority
-            />
-          ) : (
-            <div className="w-full h-full bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center">
-              <SlIcon name="image" className="text-gray-300 text-4xl" />
-            </div>
-          )}
-          
-          {/* Overlay de ação rápida */}
-          <div className={`absolute inset-0 bg-gradient-to-t from-black/60 to-black/30 flex items-center justify-center transition-opacity duration-300 ${isHovered ? 'opacity-100' : 'opacity-0'}`}>
-            <SlButton 
-              variant="primary" 
-              size="large"
-              onClick={() => setShowExtras(true)}
-              className="transform hover:scale-105 transition-transform bg-amber-500 hover:bg-amber-600 border-amber-600"
-            >
-              Ver Detalhes
-            </SlButton>
-          </div>
+      <div className="bg-white transition p-4 flex flex-col gap-2 h-full">
+        {/* Imagem do Produto */}
+        <div className="relative w-full aspect-[4/3] rounded-lg overflow-hidden mb-4">
+          <Image
+            src={product.imageUrl || "/placeholder.png"}
+            alt={product.name}
+            fill
+            className="object-contain bg-white"
+          />
         </div>
 
-        {/* Informações do produto */}
-        <div className="flex flex-col gap-2">
-          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-1">
-            <h3 className="text-base sm:text-lg font-bold text-gray-800 line-clamp-2 group-hover:text-amber-600 transition-colors">
-              {product.name}
-            </h3>
-            <div className="flex flex-col items-end">
-              <span className="text-base sm:text-lg font-bold text-amber-600 whitespace-nowrap">
-                {formatCurrency(product.price)}
-              </span>
-              {selectedExtras.length > 0 && (
-                <span className="text-sm text-gray-500">
-                  Total: {formatCurrency(totalPrice)}
-                </span>
-              )}
-            </div>
-          </div>
+        {/* Nome do Produto */}
+        <h2 className="text-base font-semibold text-gray-800 leading-snug mb-2 line-clamp-2 hover:text-blue-700 transition-colors">
+          {product.name}
+        </h2>
 
-          {product.description && (
-            <p className="text-sm text-gray-600 line-clamp-2">{product.description}</p>
-          )}
+        {/* Descrição (opcional) */}
+        {product.description && (
+          <p className="text-sm text-gray-500 line-clamp-2 mb-3">
+            {product.description}
+          </p>
+        )}
 
-          {/* Indicador de extras */}
-          {product.extras?.length && product.extras.length > 0 && (
-            <div className="flex items-center gap-2 text-sm text-amber-600">
-              <SlIcon name="plus-circle" />
-              <span>{product.extras.length} complementos disponíveis</span>
-            </div>
+        {/* Preço */}
+        <div className="mb-4">
+          <span className="text-lg font-bold text-blue-600">{formatCurrency(product.price)}</span>
+          {product.price && product.price > product.price && (
+            <span className="ml-2 text-sm line-through text-gray-400">
+              {formatCurrency(product.price)}
+            </span>
           )}
         </div>
       </div>
 
       {/* Ações do produto */}
-      <div className="mt-3 sm:mt-4 flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 pt-3 border-t border-gray-100">
-        <div className="flex items-center justify-between sm:justify-start gap-2">
-          <SlButton
-            size="small"
-            variant="neutral"
-            onClick={() => handleQuantityChange(quantity - 1)}
-            disabled={quantity <= 1}
-            className="!p-1 sm:!p-2 hover:bg-amber-50 text-amber-600"
-          >
-            <SlIcon name="dash" />
-          </SlButton>
-          <SlInput
-            type="number"
-            min={1}
-            max={MAX_QUANTITY}
-            value={quantity.toString()}
-            size="small"
-            className="w-12 sm:w-16"
-            onSlInput={(e: any) => handleQuantityChange(Number(e.target.value))}
-          />
-          <SlButton
-            size="small"
-            variant="neutral"
-            onClick={() => handleQuantityChange(quantity + 1)}
-            disabled={quantity >= MAX_QUANTITY}
-            className="!p-1 sm:!p-2 hover:bg-amber-50 text-amber-600"
-          >
-            <SlIcon name="plus" />
-          </SlButton>
-        </div>
-        <SlButton 
-          variant="primary" 
+
+      <div className="flex text-center justify-center">
+        <SlButton
+          size="small"
+          variant="default"
+          onClick={() => handleQuantityChange(quantity - 1)}
+          disabled={quantity <= 1}
+        >
+          <Minus className="text-red-700" />
+        </SlButton>
+
+        <input
+          type="number"
+          min={1}
+          max={MAX_QUANTITY}
+          value={quantity.toString()}
+          className="text-center"
+          disabled
+          onChange={(e: any) => handleQuantityChange(Number(e.target.value))}
+        />
+        <SlButton
+          size="small"
+          variant="default"
+          onClick={() => handleQuantityChange(quantity + 1)}
+          disabled={quantity >= MAX_QUANTITY}
+
+        >
+          <Plus className="text-black" />
+        </SlButton>
+      </div>
+
+      <div>
+        <SlButton
+          variant="primary"
           onClick={handleAdd}
           className="flex-1 hover:scale-[1.02] transition-transform bg-amber-500 hover:bg-amber-600 border-amber-600"
           loading={isAdding}
@@ -218,7 +189,7 @@ export default function ProductCard({ product }: { product: ProductWithExtra }) 
                 onClick={() => setShowExtras(false)}
                 className="!p-1 hover:bg-amber-50 text-amber-600"
               >
-                <SlIcon name="x-lg" />
+                <X />
               </SlButton>
             </div>
 
@@ -230,7 +201,7 @@ export default function ProductCard({ product }: { product: ProductWithExtra }) 
                     {product.extras
                       .filter(extra => extra.isFree)
                       .map(extra => (
-                        <label 
+                        <label
                           key={extra.id}
                           className="flex items-center gap-2 p-2 rounded-lg hover:bg-amber-100/50 transition-colors cursor-pointer"
                         >
@@ -255,7 +226,7 @@ export default function ProductCard({ product }: { product: ProductWithExtra }) 
                     {product.extras
                       .filter(extra => !extra.isFree)
                       .map(extra => (
-                        <label 
+                        <label
                           key={extra.id}
                           className="flex items-center gap-2 p-2 rounded-lg hover:bg-amber-50/50 transition-colors cursor-pointer"
                         >
@@ -294,6 +265,8 @@ export default function ProductCard({ product }: { product: ProductWithExtra }) 
           </div>
         </div>
       )}
+
     </div>
+
   );
 }

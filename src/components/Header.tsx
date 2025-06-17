@@ -7,6 +7,8 @@ import { GiShoppingCart } from "react-icons/gi";
 import { useCart } from '../context/CartContext';
 import { useSession, signOut } from "next-auth/react";
 import dynamic from 'next/dynamic';
+import { ProductFilterBar } from './ProductFilterBar';
+import { useSearch } from '@/context/SearchContext';
 
 const SlButton = dynamic(
   () =>
@@ -33,10 +35,11 @@ export default function Header() {
   const {items} = useCart()
   const { data: session } = useSession();
   const isAdmin = session?.user?.role === "ADMIN";
+  const { search, setSearch, sort, setSort, setPage } = useSearch();
 
   return (
-    <header className="bg-white border-b sticky top-0 z-50">
-      <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+    <header className="flex flex-col bg-white border-b sticky top-0 z-50 max-w-full items-center !p-3">
+      <div className="max-w-full flex items-center justify-between">
         {/* Logo / Nome da loja */}
         <Link href="/" className="text-xl font-bold text-green-600">
           <Image src="/logo.png" alt="Logo" width={100} height={100} priority/>
@@ -96,6 +99,15 @@ export default function Header() {
             </SlMenu>
           </SlDropdown>
         </div>
+      </div>
+      <div className="max-w-full flex items-center justify-between">
+        <ProductFilterBar
+          search={search}
+          setSearch={setSearch}
+          sort={sort}
+          setSort={setSort}
+          setPage={setPage}
+        />
       </div>
     </header>
   );
