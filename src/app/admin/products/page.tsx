@@ -68,24 +68,41 @@ export default function AdminProducts() {
 
   const { getRootProps, getInputProps } = useDropzone({
     accept: {
-      'image/*': ['.png', '.jpg', '.jpeg', '.gif']
+      'image/*': ['.png', '.jpg', '.jpeg', '.gif', '.webp']
     },
     maxFiles: 1,
+    maxSize: 4 * 1024 * 1024, // 4MB
     onDrop: async (acceptedFiles) => {
-      if (acceptedFiles.length === 0) return;
+      if (acceptedFiles.length === 0) {
+        alert('Nenhum arquivo selecionado ou arquivo inválido');
+        return;
+      }
       
+      console.log('Iniciando upload de:', acceptedFiles[0].name);
       setUploading(true);
+      
       try {
         const res = await startUpload(acceptedFiles);
-        if (res?.[0]) {
+        console.log('Resposta do upload:', res);
+        
+        if (res?.[0]?.url) {
           setImageUrl(res[0].url);
+          console.log('URL da imagem definida:', res[0].url);
+        } else {
+          throw new Error('URL da imagem não foi retornada');
         }
       } catch (error) {
-        console.error('Erro no upload:', error);
-        alert('Erro ao fazer upload da imagem');
+        console.error('Erro detalhado no upload:', error);
+        alert(`Erro ao fazer upload da imagem: ${error.message || 'Erro desconhecido'}`);
       } finally {
         setUploading(false);
       }
+    },
+    onDropRejected: (fileRejections) => {
+      console.log('Arquivos rejeitados:', fileRejections);
+      const errors = fileRejections[0]?.errors || [];
+      const errorMessages = errors.map(e => e.message).join(', ');
+      alert(`Arquivo rejeitado: ${errorMessages}`);
     }
   });
 
@@ -356,23 +373,29 @@ export default function AdminProducts() {
               ) : (
                 <div className="space-y-2">
                   <p className="text-sm text-gray-600">
-                    {uploading ? 'Enviando...' : 'Arraste uma imagem ou clique para selecionar'}
+                    {uploading ? 'Enviando imagem...' : 'Arraste uma imagem ou clique para selecionar'}
                   </p>
                   <p className="text-xs text-gray-500">
-                    PNG, JPG ou GIF até 5MB
+                    PNG, JPG, GIF ou WEBP até 4MB
                   </p>
+                  {uploading && (
+                    <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div className="bg-blue-600 h-2 rounded-full animate-pulse w-1/2"></div>
+                    </div>
+                  )}
                   <div className="flex justify-center">
                     <SlButton
                       type="button"
                       size="small"
                       variant="neutral"
+                      disabled={uploading}
                       onClick={(e) => {
                         e.stopPropagation();
                         const input = document.querySelector('input[type="file"]') as HTMLInputElement;
                         if (input) input.click();
                       }}
                     >
-                      Selecionar Imagem
+                      {uploading ? 'Enviando...' : 'Selecionar Imagem'}
                     </SlButton>
                   </div>
                 </div>

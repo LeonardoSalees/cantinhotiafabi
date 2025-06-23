@@ -5,13 +5,15 @@ const f = createUploadthing();
 export const ourFileRouter = {
   imageUploader: f({ image: { maxFileSize: "4MB" } })
     .middleware(async () => {
-      if (!process.env.UPLOADTHING_TOKEN) {
-        throw new Error("UPLOADTHING_TOKEN is not defined");
+      if (!process.env.UPLOADTHING_SECRET) {
+        throw new Error("UPLOADTHING_SECRET is not defined");
       }
       return {};
     })
     .onUploadComplete(async ({ metadata, file }) => {
-      return { url: file.ufsUrl };
+      console.log("Upload complete for file:", file.name);
+      console.log("File URL:", file.url);
+      return { url: file.url };
     }),
 } satisfies FileRouter;
 
