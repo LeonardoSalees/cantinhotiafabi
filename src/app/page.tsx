@@ -157,7 +157,7 @@ const SlInput = dynamic(
   { ssr: false },
 );
 
-export function ProductsPage() {
+function ProductsPage() {
   const { products, page, setPage, totalPages } = useSearch();
 
   return (
@@ -191,3 +191,5 @@ export function ProductsPage() {
     </div>
   );
 }
+
+export default ProductsPage;
