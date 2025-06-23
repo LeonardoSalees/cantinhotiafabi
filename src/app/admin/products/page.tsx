@@ -106,7 +106,6 @@ export default function AdminProducts() {
         }
       } catch (error) {
         console.error('Erro detalhado no upload:', error);
-        console.error('Stack trace:', error.stack);
         alert(`Erro ao fazer upload da imagem: ${error.message || 'Erro desconhecido'}`);
       } finally {
         setUploading(false);

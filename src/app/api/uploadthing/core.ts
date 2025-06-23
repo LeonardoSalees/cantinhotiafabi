@@ -1,5 +1,6 @@
 
 import { createUploadthing, type FileRouter } from "uploadthing/next";
+import { UploadThingError } from "uploadthing/server";
 
 const f = createUploadthing();
 
@@ -12,7 +13,7 @@ export const ourFileRouter = {
       
       if (!process.env.UPLOADTHING_SECRET) {
         console.error("UPLOADTHING_SECRET is not defined");
-        throw new Error("UPLOADTHING_SECRET is not defined");
+        throw new UploadThingError("UPLOADTHING_SECRET is not defined");
       }
       
       return { userId: "anonymous" };
