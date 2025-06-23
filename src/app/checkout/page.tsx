@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useCart } from '@/context/CartContext';
@@ -27,7 +28,7 @@ const SlInput = dynamic(() =>
 );
 
 export default function CheckoutPage() {
-  const { items, clearCart, getTotal } = useCart();
+  const { cartItems, clearCart, getTotal } = useCart();
   const [deliveryEnabled, setDeliveryEnabled] = useState(false);
   const [deliveryType, setDeliveryType] = useState<DeliveryType>(DeliveryType.RETIRAR);
   const [address, setAddress] = useState('');
@@ -67,7 +68,7 @@ export default function CheckoutPage() {
       customerPhone: phone,
       customerAddress: deliveryType === DeliveryType.ENTREGAR ? address : undefined,
       status: OrderStatus.PENDENTE,
-      items,
+      items: cartItems,
       total,
       deliveryType: deliveryType === undefined ? DeliveryType.RETIRAR : DeliveryType.ENTREGAR,
     };
@@ -115,12 +116,12 @@ export default function CheckoutPage() {
     <div className="max-w-3xl mx-auto p-6" style={{ color: 'var(--text-expresso)' }}>
       <h1 className="text-2xl font-bold mb-6">Resumo do Pedido</h1>
 
-      {items.length === 0 ? (
+      {cartItems.length === 0 ? (
         <p className="text-gray-600">Seu carrinho está vazio.</p>
       ) : (
         <>
           <div className="space-y-4">
-            {items.map((item, index) => (
+            {cartItems.map((item, index) => (
               <div key={index} className="border rounded-lg p-4 shadow-sm bg-white">
                 <div className="flex justify-between items-center mb-1">
                   <h2 className="text-lg font-semibold">{item.product.name}</h2>

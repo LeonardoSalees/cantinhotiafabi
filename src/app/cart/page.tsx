@@ -1,3 +1,4 @@
+
 "use client";
 
 import dynamic from 'next/dynamic';
@@ -36,7 +37,7 @@ export default function CartPage() {
               <div className="flex flex-col items-center gap-4 sm:flex-row">
 
                 <Image
-                  src={String(item.product.imageUrl)}
+                  src={String(item.product.imageUrl) || "/placeholder.png"}
                   alt={item.product.name}
                   width={80}
                   height={80}
