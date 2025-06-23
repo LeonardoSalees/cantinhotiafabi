@@ -38,76 +38,92 @@ export default function Header() {
   const { search, setSearch, sort, setSort, setPage } = useSearch();
 
   return (
-    <header className="flex flex-col bg-white border-b sticky top-0 z-50 max-w-full items-center !p-3">
-      <div className="max-w-full flex items-center justify-between">
-        {/* Logo / Nome da loja */}
-        <Link href="/" className="text-xl font-bold text-green-600">
-          <Image src="/logo.png" alt="Logo" width={100} height={100} priority/>
-        </Link>
-
-        {/* Navegação principal */}
-        <div className="hidden sm:flex items-center gap-4">
-          {isAdmin && (
-            <>
-              <Link href="/admin/products">
-                <SlButton variant="text">Gerenciar Pedidos</SlButton>
-              </Link>
-              <Link href="/admin/products">
-                <SlButton variant="text">Gerenciar Categorias</SlButton>
-              </Link>
-              <Link href="/admin/products">
-                <SlButton variant="text">Gerenciar Produtos</SlButton>
-              </Link>
-              <Link href="/admin/extras">
-                <SlButton variant="text">Gerenciar Extras</SlButton>
-              </Link>
-            </>
-          )}
-        </div>
-
-        {/* Menu / Carrinho / Dropdown */}
-        <div className="flex items-center gap-4">
-          <Link href="/cart">
-            <SlButton variant="primary">
-              <div className='flex items-center gap-1'>
-              <p>{items.length}</p>
-              <GiShoppingCart color='white' size={20} />
-              </div>
-            </SlButton>
+    <header className="sticky top-0 z-50 w-full bg-white/95 backdrop-blur-sm border-b border-gray-200 shadow-sm">
+      <div className="container mx-auto">
+        {/* Barra principal */}
+        <div className="flex items-center justify-between py-3 px-4 lg:px-6">
+          {/* Logo */}
+          <Link href="/" className="flex-shrink-0 transition-transform hover:scale-105">
+            <Image 
+              src="/logo.png" 
+              alt="Cantinho da Tia Fabi" 
+              width={80} 
+              height={80} 
+              priority
+              className="w-16 h-16 sm:w-20 sm:h-20 object-contain"
+            />
           </Link>
 
-          {/* Dropdown de conta */}
-          <SlDropdown>
-            <SlButton slot="trigger" caret>
-              {session ? session.user.name : 'Conta'}
-            </SlButton>
-            <SlMenu>
-              {session ? (
-                <>
-                  {isAdmin && (
-                    <Link href="/admin">
-                      <SlMenuItem>Painel Admin</SlMenuItem>
-                    </Link>
-                  )}
-                  <SlMenuItem onClick={() => signOut()}>Sair</SlMenuItem>
-                </>
-              ) : (
-                <Link href="/login">
-                  <SlMenuItem>Entrar</SlMenuItem>
+          {/* Navegação desktop */}
+          <nav className="hidden lg:flex items-center space-x-1">
+            {isAdmin && (
+              <>
+                <Link href="/admin/orders">
+                  <SlButton variant="text" size="small">Pedidos</SlButton>
                 </Link>
-              )}
-            </SlMenu>
-          </SlDropdown>
+                <Link href="/admin/categories">
+                  <SlButton variant="text" size="small">Categorias</SlButton>
+                </Link>
+                <Link href="/admin/products">
+                  <SlButton variant="text" size="small">Produtos</SlButton>
+                </Link>
+                <Link href="/admin/extras">
+                  <SlButton variant="text" size="small">Extras</SlButton>
+                </Link>
+              </>
+            )}
+          </nav>
+
+          {/* Ações do usuário */}
+          <div className="flex items-center gap-2 sm:gap-3">
+            {/* Carrinho */}
+            <Link href="/cart" className="relative">
+              <SlButton variant="primary" size="small" className="!min-w-[44px]">
+                <div className='flex items-center gap-1.5'>
+                  <span className="text-sm font-medium">{items.length}</span>
+                  <GiShoppingCart size={18} />
+                </div>
+              </SlButton>
+            </Link>
+
+            {/* Menu do usuário */}
+            <SlDropdown>
+              <SlButton slot="trigger" caret size="small" className="!min-w-[44px]">
+                <span className="hidden sm:inline text-sm">
+                  {session?.user?.name ? session.user.name.split(' ')[0] : 'Conta'}
+                </span>
+                <span className="sm:hidden">👤</span>
+              </SlButton>
+              <SlMenu>
+                {session ? (
+                  <>
+                    {isAdmin && (
+                      <Link href="/admin">
+                        <SlMenuItem>📊 Painel Admin</SlMenuItem>
+                      </Link>
+                    )}
+                    <SlMenuItem onClick={() => signOut()}>🚪 Sair</SlMenuItem>
+                  </>
+                ) : (
+                  <Link href="/login">
+                    <SlMenuItem>🔑 Entrar</SlMenuItem>
+                  </Link>
+                )}
+              </SlMenu>
+            </SlDropdown>
+          </div>
         </div>
-      </div>
-      <div className="max-w-full flex items-center justify-between">
-        <ProductFilterBar
-          search={search}
-          setSearch={setSearch}
-          sort={sort}
-          setSort={setSort}
-          setPage={setPage}
-        />
+
+        {/* Barra de pesquisa */}
+        <div className="px-4 lg:px-6 pb-3">
+          <ProductFilterBar
+            search={search}
+            setSearch={setSearch}
+            sort={sort}
+            setSort={setSort}
+            setPage={setPage}
+          />
+        </div>
       </div>
     </header>
   );

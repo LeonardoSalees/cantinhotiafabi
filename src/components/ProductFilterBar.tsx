@@ -16,24 +16,29 @@ type ProductFilterBarProps = {
 
 export function ProductFilterBar({ search, setSearch, sort, setSort, setPage }: ProductFilterBarProps) {
   return (
-    <div className="flex flex-col sm:flex-row items-center gap-3 pb-4">
-      <SlInput
-        placeholder="Buscar produto..."
-        value={search}
-        onSlInput={(e: any) => {
-          setSearch(e.target.value);
-          setPage(1);
-        }}
-      />
-      <select
-        className="p-2 border rounded"
-        value={sort}
-        onChange={(e) => setSort(e.target.value)}
-        style={{ color: 'var(--text-expresso)' }}
-      >
-        <option value="name">Nome (A-Z)</option>
-        <option value="price">Preço (menor primeiro)</option>
-      </select>
+    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full">
+      <div className="flex-1 min-w-0">
+        <SlInput
+          placeholder="🔍 Buscar produtos..."
+          value={search}
+          onSlInput={(e: any) => {
+            setSearch(e.target.value);
+            setPage(1);
+          }}
+          className="w-full"
+          size="small"
+        />
+      </div>
+      <div className="flex-shrink-0">
+        <select
+          className="input w-full sm:w-auto min-w-[160px] text-sm bg-white border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors"
+          value={sort}
+          onChange={(e) => setSort(e.target.value)}
+        >
+          <option value="name">📝 Nome (A-Z)</option>
+          <option value="price">💰 Preço (menor)</option>
+        </select>
+      </div>
     </div>
   );
 }

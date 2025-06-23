@@ -86,95 +86,107 @@ export default function ProductCard({ product }: { product: ProductWithExtra }) 
 
   return (
     <div
-      className="group flex flex-col gap-3 bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 items-center !p-4 h-full border border-gray-100 relative overflow-hidden"
+      className="card group flex flex-col h-full relative overflow-hidden hover:scale-[1.02] transition-all duration-300 fade-in"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
       {/* Badge de destaque */}
       {hasFreeExtras && (
-        <div className="absolute top-2 right-2 z-10">
-          <span className="bg-amber-100 text-amber-800 text-xs font-medium px-2.5 py-0.5 rounded-full border border-amber-200">
-            Complementos Grátis
+        <div className="absolute top-3 right-3 z-10">
+          <span className="bg-gradient-to-r from-amber-400 to-orange-400 text-white text-xs font-semibold px-3 py-1 rounded-full shadow-sm">
+            🎁 Grátis
           </span>
         </div>
       )}
 
-      <div className="bg-white transition p-4 flex flex-col gap-2 h-full">
+      {/* Container principal do produto */}
+      <div className="flex flex-col h-full">
         {/* Imagem do Produto */}
-        <div className="relative w-full aspect-[4/3] rounded-lg overflow-hidden mb-4">
+        <div className="relative w-full aspect-square rounded-lg overflow-hidden mb-4 bg-gray-50">
           <Image
             src={product.imageUrl || "/placeholder.png"}
             alt={product.name}
             fill
-            className="object-contain bg-white"
+            className="object-cover group-hover:scale-105 transition-transform duration-300"
+            sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
           />
-        </div>
-
-        {/* Nome do Produto */}
-        <h2 className="text-base font-semibold text-gray-800 leading-snug mb-2 line-clamp-2 hover:text-blue-700 transition-colors">
-          {product.name}
-        </h2>
-
-        {/* Descrição (opcional) */}
-        {product.description && (
-          <p className="text-sm text-gray-500 line-clamp-2 mb-3">
-            {product.description}
-          </p>
-        )}
-
-        {/* Preço */}
-        <div className="mb-4">
-          <span className="text-lg font-bold text-blue-600">{formatCurrency(product.price)}</span>
-          {product.price && product.price > product.price && (
-            <span className="ml-2 text-sm line-through text-gray-400">
-              {formatCurrency(product.price)}
-            </span>
+          {!product.imageUrl && (
+            <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
+              <span className="text-4xl">🍽️</span>
+            </div>
           )}
         </div>
-      </div>
 
-      {/* Ações do produto */}
+        {/* Informações do produto */}
+        <div className="flex-1 flex flex-col">
+          {/* Nome do Produto */}
+          <h3 className="text-lg font-semibold text-gray-900 leading-tight mb-2 line-clamp-2 hover:text-amber-600 transition-colors">
+            {product.name}
+          </h3>
 
-      <div className="flex text-center justify-center">
-        <SlButton
-          size="small"
-          variant="default"
-          onClick={() => handleQuantityChange(quantity - 1)}
-          disabled={quantity <= 1}
-        >
-          <Minus className="text-red-700" />
-        </SlButton>
+          {/* Descrição */}
+          {product.description && (
+            <p className="text-sm text-gray-600 line-clamp-2 mb-3 flex-1">
+              {product.description}
+            </p>
+          )}
 
-        <input
-          type="number"
-          min={1}
-          max={MAX_QUANTITY}
-          value={quantity.toString()}
-          className="text-center"
-          disabled
-          onChange={(e: any) => handleQuantityChange(Number(e.target.value))}
-        />
-        <SlButton
-          size="small"
-          variant="default"
-          onClick={() => handleQuantityChange(quantity + 1)}
-          disabled={quantity >= MAX_QUANTITY}
+          {/* Preço */}
+          <div className="mb-4">
+            <span className="text-xl font-bold text-amber-600">
+              {formatCurrency(product.price)}
+            </span>
+          </div>
 
-        >
-          <Plus className="text-black" />
-        </SlButton>
-      </div>
+          {/* Controles de quantidade */}
+          <div className="flex items-center justify-center gap-3 mb-4">
+            <SlButton
+              size="small"
+              variant="outline"
+              onClick={() => handleQuantityChange(quantity - 1)}
+              disabled={quantity <= 1}
+              className="!min-w-[40px] !h-[40px] rounded-full hover:bg-red-50 hover:border-red-300"
+            >
+              <Minus size={16} className="text-red-600" />
+            </SlButton>
 
-      <div>
-        <SlButton
-          variant="primary"
-          onClick={handleAdd}
-          className="flex-1 hover:scale-[1.02] transition-transform bg-amber-500 hover:bg-amber-600 border-amber-600"
-          loading={isAdding}
-          disabled={isAdding}
-        >
-          {isAdding ? 'Adicionando...' : 'Adicionar ao Carrinho'}
-        </SlButton>
+            <div className="flex items-center justify-center min-w-[60px] h-[40px] bg-gray-50 rounded-lg border">
+              <span className="text-lg font-semibold text-gray-800">{quantity}</span>
+            </div>
+
+            <SlButton
+              size="small"
+              variant="outline"
+              onClick={() => handleQuantityChange(quantity + 1)}
+              disabled={quantity >= MAX_QUANTITY}
+              className="!min-w-[40px] !h-[40px] rounded-full hover:bg-green-50 hover:border-green-300"
+            >
+              <Plus size={16} className="text-green-600" />
+            </SlButton>
+          </div>
+
+          {/* Botão de adicionar */}
+          <SlButton
+            variant="primary"
+            onClick={product.extras?.length ? () => setShowExtras(true) : handleAdd}
+            className="w-full btn-primary !bg-amber-500 hover:!bg-amber-600 !border-amber-500 hover:!border-amber-600 text-white font-medium py-3 rounded-lg shadow-sm hover:shadow-md transition-all"
+            loading={isAdding}
+            disabled={isAdding}
+          >
+            {isAdding ? (
+              <div className="flex items-center gap-2">
+                <div className="spinner"></div>
+                Adicionando...
+              </div>
+            ) : (
+              <div className="flex items-center justify-center gap-2">
+                <GiShoppingCart size={18} />
+                <span className="hidden sm:inline">Adicionar ao Carrinho</span>
+                <span className="sm:hidden">Adicionar</span>
+              </div>
+            )}
+          </SlButton>
+        </div>
       </div>
 
       {/* Modal de extras */}
