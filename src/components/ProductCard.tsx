@@ -143,7 +143,7 @@ export default function ProductCard({ product }: { product: ProductWithExtra }) 
           <div className="flex items-center justify-center gap-3 mb-4">
             <SlButton
               size="small"
-              variant="outline"
+              variant="default"
               onClick={() => handleQuantityChange(quantity - 1)}
               disabled={quantity <= 1}
               className="!min-w-[40px] !h-[40px] rounded-full hover:bg-red-50 hover:border-red-300"
