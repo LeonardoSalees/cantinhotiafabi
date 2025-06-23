@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -48,7 +47,7 @@ export default function CategoriesPage() {
     maxFiles: 1,
     onDrop: async (acceptedFiles) => {
       if (acceptedFiles.length === 0) return;
-      
+
       setUploading(true);
       try {
         const res = await startUpload(acceptedFiles);
@@ -139,16 +138,16 @@ export default function CategoriesPage() {
     if (!confirm('Tem certeza que deseja excluir esta categoria?')) {
       return;
     }
-    
+
     try {
       const response = await fetch(`/api/categories/${category.id}`, {
         method: 'DELETE',
       });
-      
+
       if (!response.ok) {
         throw new Error('Erro ao excluir categoria');
       }
-      
+
       toast.success('Categoria excluída com sucesso!');
       fetchCategories();
     } catch (error) {
@@ -237,7 +236,7 @@ export default function CategoriesPage() {
                   {/* Actions */}
                   <div className="flex gap-2">
                     <SlButton
-                      variant="neutral"
+                      variant="default"
                       size="small"
                       onClick={() => handleEdit(category)}
                       className="flex-1 flex items-center justify-center gap-1"

@@ -77,21 +77,21 @@ export default function AdminProducts() {
         alert('Nenhum arquivo selecionado ou arquivo inválido');
         return;
       }
-      
+
       console.log('Iniciando upload de:', acceptedFiles[0].name);
       console.log('Tamanho do arquivo:', acceptedFiles[0].size);
       console.log('Tipo do arquivo:', acceptedFiles[0].type);
       setUploading(true);
-      
+
       try {
         console.log('Chamando startUpload...');
         const res = await startUpload(acceptedFiles);
         console.log('Resposta completa do upload:', JSON.stringify(res, null, 2));
-        
+
         if (res && res.length > 0 && res[0]) {
           const uploadedFile = res[0];
           console.log('Arquivo carregado:', uploadedFile);
-          
+
           if (uploadedFile.url) {
             setImageUrl(uploadedFile.url);
             console.log('URL da imagem definida:', uploadedFile.url);
