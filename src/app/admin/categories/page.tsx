@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -8,6 +9,7 @@ import Image from 'next/image';
 import dynamic from 'next/dynamic';
 import { useDropzone } from 'react-dropzone';
 import { useUploadThing } from '@/lib/uploadthing';
+import { MdAdd, MdEdit, MdDelete, MdImage } from 'react-icons/md';
 
 const SlButton = dynamic(() =>
   import('@shoelace-style/shoelace/dist/react').then((mod) => mod.SlButton),
@@ -16,11 +18,6 @@ const SlButton = dynamic(() =>
 
 const SlInput = dynamic(() =>
   import('@shoelace-style/shoelace/dist/react').then((mod) => mod.SlInput),
-  { ssr: false }
-);
-
-const SlDialog = dynamic(() =>
-  import('@shoelace-style/shoelace/dist/react').then((mod) => mod.SlDialog),
   { ssr: false }
 );
 
@@ -161,158 +158,225 @@ export default function CategoriesPage() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8" style={{ color: 'var(--text-expresso)' }}>
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold">Gerenciar Categorias</h1>
-        <SlButton
-          variant="primary"
-          onClick={() => {
-            setIsEditing(false);
-            setEditingCategory(null);
-            setFormData({ name: '', description: '', imageUrl: '' });
-            setIsModalOpen(true);
-          }}
-        >
-          Nova Categoria
-        </SlButton>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {categories.map((category) => (
-          <div
-            key={category.id}
-            className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300"
-          >
-            <div className="relative h-48 w-full">
-              {category.imageUrl ? (
-                <Image
-                  src={category.imageUrl}
-                  alt={category.name}
-                  fill
-                  className="object-cover"
-                />
-              ) : (
-                <div className="w-full h-full bg-gray-100 flex items-center justify-center">
-                  <span className="text-gray-400 text-4xl">+</span>
-                </div>
-              )}
+    <div className="min-h-screen bg-gray-50">
+      <div className="container mx-auto px-4 py-8">
+        {/* Header */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-800 mb-2">Categorias</h1>
+              <p className="text-gray-600">Gerencie as categorias dos seus produtos</p>
             </div>
-            <div className="p-6">
-              <h3 className="text-xl font-semibold mb-2">{category.name}</h3>
-              <p className="text-gray-600 mb-4 line-clamp-2">{category.description}</p>
-              <div className="flex justify-end gap-2">
-                <SlButton
-                  variant="neutral"
-                  size="small"
-                  onClick={() => handleEdit(category)}
-                >
-                  Editar
-                </SlButton>
-                <SlButton
-                  variant="danger"
-                  size="small"
-                  onClick={() => handleDelete(category)}
-                >
-                  Excluir
-                </SlButton>
-              </div>
-            </div>
+            <SlButton
+              variant="primary"
+              onClick={() => {
+                setIsEditing(false);
+                setEditingCategory(null);
+                setFormData({ name: '', description: '', imageUrl: '' });
+                setIsModalOpen(true);
+              }}
+              className="flex items-center gap-2"
+            >
+              <MdAdd className="text-lg" />
+              Nova Categoria
+            </SlButton>
           </div>
-        ))}
-      </div>
+        </div>
 
-      {isModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold">
-                {isEditing ? 'Editar Categoria' : 'Nova Categoria'}
-              </h2>
-              <SlButton
-                variant="neutral"
-                size="small"
-                onClick={() => setIsModalOpen(false)}
+        {/* Categories Grid */}
+        {categories.length === 0 ? (
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center">
+            <MdImage className="text-6xl text-gray-300 mx-auto mb-4" />
+            <h3 className="text-xl font-semibold text-gray-600 mb-2">Nenhuma categoria encontrada</h3>
+            <p className="text-gray-500 mb-6">Comece criando sua primeira categoria de produtos</p>
+            <SlButton
+              variant="primary"
+              onClick={() => {
+                setIsEditing(false);
+                setEditingCategory(null);
+                setFormData({ name: '', description: '', imageUrl: '' });
+                setIsModalOpen(true);
+              }}
+            >
+              Criar Primeira Categoria
+            </SlButton>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {categories.map((category) => (
+              <div
+                key={category.id}
+                className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
               >
-                ✕
-              </SlButton>
-            </div>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Nome
-                </label>
-                <SlInput
-                  type="text"
-                  value={formData.name}
-                  onSlInput={(e: any) =>
-                    setFormData({ ...formData, name: e.target.value })
-                  }
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Descrição
-                </label>
-                <textarea
-                  value={formData.description}
-                  onChange={(e) =>
-                    setFormData({ ...formData, description: e.target.value })
-                  }
-                  className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                  rows={3}
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Imagem
-                </label>
-                <div
-                  {...getRootProps()}
-                  className={`border-2 border-dashed rounded-lg p-4 text-center cursor-pointer transition-colors
-                    ${uploading ? 'border-gray-400 bg-gray-50' : 'border-gray-300 hover:border-gray-400'}
-                    ${formData.imageUrl ? 'border-green-500' : ''}`}
-                >
-                  <input {...getInputProps()} />
-                  {formData.imageUrl ? (
-                    <div className="relative w-32 h-32 mx-auto">
-                      <Image
-                        src={formData.imageUrl}
-                        alt="Preview"
-                        fill
-                        className="object-cover rounded"
-                      />
-                    </div>
+                {/* Image */}
+                <div className="relative h-48 w-full bg-gray-100">
+                  {category.imageUrl ? (
+                    <Image
+                      src={category.imageUrl}
+                      alt={category.name}
+                      fill
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                      className="object-cover"
+                    />
                   ) : (
-                    <div className="space-y-2">
-                      <p className="text-sm text-gray-600">
-                        {uploading ? 'Enviando...' : 'Arraste uma imagem ou clique para selecionar'}
-                      </p>
-                      <p className="text-xs text-gray-500">
-                        PNG, JPG ou GIF até 5MB
-                      </p>
+                    <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+                      <MdImage className="text-4xl text-gray-400" />
                     </div>
                   )}
                 </div>
+
+                {/* Content */}
+                <div className="p-6">
+                  <h3 className="text-xl font-semibold text-gray-800 mb-2 line-clamp-1">
+                    {category.name}
+                  </h3>
+                  <p className="text-gray-600 text-sm mb-4 line-clamp-2 min-h-[2.5rem]">
+                    {category.description || 'Sem descrição'}
+                  </p>
+
+                  {/* Actions */}
+                  <div className="flex gap-2">
+                    <SlButton
+                      variant="neutral"
+                      size="small"
+                      onClick={() => handleEdit(category)}
+                      className="flex-1 flex items-center justify-center gap-1"
+                    >
+                      <MdEdit className="text-sm" />
+                      Editar
+                    </SlButton>
+                    <SlButton
+                      variant="danger"
+                      size="small"
+                      onClick={() => handleDelete(category)}
+                      className="flex-1 flex items-center justify-center gap-1"
+                    >
+                      <MdDelete className="text-sm" />
+                      Excluir
+                    </SlButton>
+                  </div>
+                </div>
               </div>
-              <div className="flex justify-end gap-2 pt-4">
-                <SlButton
-                  variant="neutral"
-                  onClick={() => setIsModalOpen(false)}
-                >
-                  Cancelar
-                </SlButton>
-                <SlButton
-                  type="submit"
-                  variant="primary"
-                >
-                  {isEditing ? 'Atualizar' : 'Criar'}
-                </SlButton>
-              </div>
-            </form>
+            ))}
           </div>
-        </div>
-      )}
+        )}
+
+        {/* Modal */}
+        {isModalOpen && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div className="bg-white rounded-xl shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+              <div className="p-6">
+                <div className="flex justify-between items-center mb-6">
+                  <h2 className="text-2xl font-bold text-gray-800">
+                    {isEditing ? 'Editar Categoria' : 'Nova Categoria'}
+                  </h2>
+                  <button
+                    onClick={() => setIsModalOpen(false)}
+                    className="text-gray-400 hover:text-gray-600 text-2xl"
+                  >
+                    ✕
+                  </button>
+                </div>
+
+                <form onSubmit={handleSubmit} className="space-y-6">
+                  {/* Nome */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Nome *
+                    </label>
+                    <SlInput
+                      type="text"
+                      value={formData.name}
+                      onSlInput={(e: any) =>
+                        setFormData({ ...formData, name: e.target.value })
+                      }
+                      placeholder="Ex: Bebidas, Lanches, Sobremesas..."
+                      required
+                    />
+                  </div>
+
+                  {/* Descrição */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Descrição
+                    </label>
+                    <textarea
+                      value={formData.description}
+                      onChange={(e) =>
+                        setFormData({ ...formData, description: e.target.value })
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 resize-none"
+                      rows={3}
+                      placeholder="Descrição da categoria..."
+                    />
+                  </div>
+
+                  {/* Upload de Imagem */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Imagem da Categoria
+                    </label>
+                    <div
+                      {...getRootProps()}
+                      className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors
+                        ${uploading ? 'border-gray-400 bg-gray-50' : 'border-gray-300 hover:border-amber-400 hover:bg-amber-50'}
+                        ${formData.imageUrl ? 'border-green-500 bg-green-50' : ''}`}
+                    >
+                      <input {...getInputProps()} />
+                      {formData.imageUrl ? (
+                        <div className="space-y-3">
+                          <div className="relative w-32 h-32 mx-auto">
+                            <Image
+                              src={formData.imageUrl}
+                              alt="Preview"
+                              fill
+                              className="object-cover rounded-lg"
+                            />
+                          </div>
+                          <p className="text-sm text-green-600 font-medium">
+                            Imagem carregada com sucesso!
+                          </p>
+                        </div>
+                      ) : (
+                        <div className="space-y-3">
+                          <MdImage className="text-4xl text-gray-400 mx-auto" />
+                          <div>
+                            <p className="text-sm text-gray-600">
+                              {uploading ? 'Enviando imagem...' : 'Arraste uma imagem ou clique para selecionar'}
+                            </p>
+                            <p className="text-xs text-gray-500 mt-1">
+                              PNG, JPG ou GIF até 5MB
+                            </p>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Botões */}
+                  <div className="flex gap-3 pt-4">
+                    <SlButton
+                      variant="neutral"
+                      onClick={() => setIsModalOpen(false)}
+                      className="flex-1"
+                    >
+                      Cancelar
+                    </SlButton>
+                    <SlButton
+                      type="submit"
+                      variant="primary"
+                      className="flex-1"
+                      disabled={uploading}
+                    >
+                      {isEditing ? 'Atualizar' : 'Criar'}
+                    </SlButton>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
-} 
+}
