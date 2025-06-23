@@ -1,7 +1,11 @@
 'use client';
 
-import { SlInput } from '@shoelace-style/shoelace/dist/react';
-
+import dynamic from 'next/dynamic'
+const SlInput = dynamic(
+  () =>
+    import('@shoelace-style/shoelace/dist/react').then((mod) => mod.SlInput),
+  { ssr: false }
+);
 type ProductFilterBarProps = {
   search: string;
   setSearch: (value: string) => void;

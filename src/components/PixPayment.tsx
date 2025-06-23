@@ -41,7 +41,7 @@ export default function PixPayment({ orderId, amount, description, onSuccess }: 
 
       if (!response.ok) {
           const errorData = await response.json();
-          throw new Error(errorData.error || 'Erro ao gerar PIX');
+          console.log(Error(errorData.error || 'Erro ao gerar PIX'))
       }
 
       const data = await response.json();
