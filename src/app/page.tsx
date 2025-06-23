@@ -8,8 +8,8 @@ import { useSearch } from "@/context/SearchContext";
 
 const SlButton = dynamic(
   () =>
-    import('@shoelace-style/shoelace/dist/react').then((mod) => mod.SlButton),
-  { ssr: false }
+    import("@shoelace-style/shoelace/dist/react").then((mod) => mod.SlButton),
+  { ssr: false },
 );
 
 interface Product {
@@ -34,14 +34,14 @@ export default function HomePage() {
       try {
         setLoading(true);
         const response = await fetch(
-          `/api/products?page=${currentPage}&limit=12&sort=${sort}&search=${search}`
+          `/api/products?page=${currentPage}&limit=12&sort=${sort}&search=${search}`,
         );
-        if (!response.ok) throw new Error('Erro ao buscar produtos');
+        if (!response.ok) throw new Error("Erro ao buscar produtos");
         const data = await response.json();
         setProducts(data.products);
         setTotalPages(data.pages);
       } catch (error) {
-        console.error('Erro ao buscar produtos:', error);
+        console.error("Erro ao buscar produtos:", error);
       } finally {
         setLoading(false);
       }
@@ -62,8 +62,8 @@ export default function HomePage() {
             </span>
           </h1>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Sabores únicos e ingredientes frescos em cada prato. 
-            Faça seu pedido e experimente o melhor da nossa cozinha!
+            Sabores únicos e ingredientes frescos em cada prato. Faça seu pedido
+            e experimente o melhor da nossa cozinha!
           </p>
         </div>
 
@@ -118,22 +118,24 @@ export default function HomePage() {
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-8">
                   <div className="flex items-center gap-2">
                     <SlButton
-                      variant="outline"
+                      variant="default"
                       size="small"
-                      onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                      onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                       disabled={currentPage === 1}
                     >
                       ← Anterior
                     </SlButton>
-                    
+
                     <span className="px-4 py-2 text-sm text-gray-600 bg-white rounded-lg border">
                       {currentPage} de {totalPages}
                     </span>
-                    
+
                     <SlButton
-                      variant="outline"
+                      variant="default"
                       size="small"
-                      onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                      onClick={() =>
+                        setCurrentPage((p) => Math.min(totalPages, p + 1))
+                      }
                       disabled={currentPage === totalPages}
                     >
                       Próxima →
@@ -151,20 +153,21 @@ export default function HomePage() {
 
 const SlInput = dynamic(
   () =>
-    import('@shoelace-style/shoelace/dist/react').then((mod) => mod.SlInput),
-  { ssr: false }
+    import("@shoelace-style/shoelace/dist/react").then((mod) => mod.SlInput),
+  { ssr: false },
 );
 
-export default function ProductsPage() {
-  const {products, page, setPage, totalPages} = useSearch()
-  
-  return (
-    <div className="m-auto w-full max-w-full flex-col !py-8 px-1 flex items-center justify-center text-center" style={{ color: 'var(--text-expresso)' }}>
+export function ProductsPage() {
+  const { products, page, setPage, totalPages } = useSearch();
 
+  return (
+    <div
+      className="m-auto w-full max-w-full flex-col !py-8 px-1 flex items-center justify-center text-center"
+      style={{ color: "var(--text-expresso)" }}
+    >
       <main className="max-w-3xl mx-auto p-4 grid justify-center gap-4 sm:grid-cols-4 text-center">
-        {products && products.map((p: any) => (
-          <ProductCard key={p.id} product={p} />
-        ))}
+        {products &&
+          products.map((p: any) => <ProductCard key={p.id} product={p} />)}
       </main>
       <div className="flex justify-center gap-4 !mt-6">
         <button
@@ -174,7 +177,9 @@ export default function ProductsPage() {
         >
           Anterior
         </button>
-        <span className="self-center">Página {page} de {totalPages}</span>
+        <span className="self-center">
+          Página {page} de {totalPages}
+        </span>
         <button
           onClick={() => setPage((prev: any) => Math.min(prev + 1, totalPages))}
           disabled={page === totalPages}

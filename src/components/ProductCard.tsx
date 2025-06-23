@@ -8,6 +8,7 @@ import { Product } from "@/types/product";
 import dynamic from 'next/dynamic';
 import { formatCurrency } from '@/lib/formatCurrency';
 import { Plus, Minus, X } from "lucide-react";
+import { GiShoppingCart } from "react-icons/gi";
 
 const SlButton = dynamic(() =>
   import('@shoelace-style/shoelace/dist/react').then((mod) => mod.SlButton), { ssr: false });
@@ -156,7 +157,7 @@ export default function ProductCard({ product }: { product: ProductWithExtra }) 
 
             <SlButton
               size="small"
-              variant="outline"
+              variant="default"
               onClick={() => handleQuantityChange(quantity + 1)}
               disabled={quantity >= MAX_QUANTITY}
               className="!min-w-[40px] !h-[40px] rounded-full hover:bg-green-50 hover:border-green-300"
