@@ -1,20 +1,35 @@
+
 import { createUploadthing, type FileRouter } from "uploadthing/next";
 
 const f = createUploadthing();
 
 export const ourFileRouter = {
   imageUploader: f({ image: { maxFileSize: "4MB" } })
-    .middleware(async () => {
+    .middleware(async ({ req }) => {
+      console.log("UploadThing middleware executing...");
+      console.log("UPLOADTHING_SECRET exists:", !!process.env.UPLOADTHING_SECRET);
+      console.log("UPLOADTHING_APP_ID exists:", !!process.env.UPLOADTHING_APP_ID);
+      
       if (!process.env.UPLOADTHING_SECRET) {
+        console.error("UPLOADTHING_SECRET is not defined");
         throw new Error("UPLOADTHING_SECRET is not defined");
       }
-      return {};
+      
+      return { userId: "anonymous" };
     })
     .onUploadComplete(async ({ metadata, file }) => {
-      console.log("Upload complete for file:", file.name);
+      console.log("Upload complete!");
+      console.log("File name:", file.name);
+      console.log("File size:", file.size);
       console.log("File URL:", file.url);
-      return { url: file.url };
+      console.log("File key:", file.key);
+      
+      return { 
+        url: file.url,
+        key: file.key,
+        name: file.name 
+      };
     }),
 } satisfies FileRouter;
 
-export type OurFileRouter = typeof ourFileRouter; 
+export type OurFileRouter = typeof ourFileRouter;

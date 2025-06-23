@@ -1,8 +1,7 @@
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  experimental: {
-    serverComponentsExternalPackages: ['@prisma/client'],
-  },
+  serverExternalPackages: ['@prisma/client'],
   images: {
     remotePatterns: [
       {
@@ -11,7 +10,24 @@ const nextConfig = {
         port: '',
         pathname: '/f/**',
       },
+      {
+        protocol: "https",
+        hostname: "**",
+      },
     ],
+  },
+  // Adiciona configuração para permitir origins do Replit
+  async headers() {
+    return [
+      {
+        source: '/api/:path*',
+        headers: [
+          { key: 'Access-Control-Allow-Origin', value: '*' },
+          { key: 'Access-Control-Allow-Methods', value: 'GET, POST, PUT, DELETE, OPTIONS' },
+          { key: 'Access-Control-Allow-Headers', value: 'Content-Type, Authorization' },
+        ],
+      },
+    ]
   },
 };
 

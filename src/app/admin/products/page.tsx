@@ -79,20 +79,34 @@ export default function AdminProducts() {
       }
       
       console.log('Iniciando upload de:', acceptedFiles[0].name);
+      console.log('Tamanho do arquivo:', acceptedFiles[0].size);
+      console.log('Tipo do arquivo:', acceptedFiles[0].type);
       setUploading(true);
       
       try {
+        console.log('Chamando startUpload...');
         const res = await startUpload(acceptedFiles);
-        console.log('Resposta do upload:', res);
+        console.log('Resposta completa do upload:', JSON.stringify(res, null, 2));
         
-        if (res?.[0]?.url) {
-          setImageUrl(res[0].url);
-          console.log('URL da imagem definida:', res[0].url);
+        if (res && res.length > 0 && res[0]) {
+          const uploadedFile = res[0];
+          console.log('Arquivo carregado:', uploadedFile);
+          
+          if (uploadedFile.url) {
+            setImageUrl(uploadedFile.url);
+            console.log('URL da imagem definida:', uploadedFile.url);
+            alert('Imagem carregada com sucesso!');
+          } else {
+            console.error('URL não encontrada na resposta:', uploadedFile);
+            throw new Error('URL da imagem não foi retornada pelo servidor');
+          }
         } else {
-          throw new Error('URL da imagem não foi retornada');
+          console.error('Resposta inválida do upload:', res);
+          throw new Error('Resposta inválida do servidor de upload');
         }
       } catch (error) {
         console.error('Erro detalhado no upload:', error);
+        console.error('Stack trace:', error.stack);
         alert(`Erro ao fazer upload da imagem: ${error.message || 'Erro desconhecido'}`);
       } finally {
         setUploading(false);
